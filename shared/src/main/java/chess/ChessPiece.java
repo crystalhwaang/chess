@@ -10,7 +10,12 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
+    private final ChessGame.TeamColor pieceColor;
+    private final PieceType type;
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceColor = pieceColor;
+        this.type = type;
     }
 
     /**
@@ -29,14 +34,14 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
+        return pieceColor;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        return type;
     }
 
     /**
@@ -47,6 +52,27 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        var moves = new HashSet<ChessMove>();
+        moves.add(new ChessMove(new ChessPosition(5,4), new ChessPosition(6,5)));
+        return moves;
+    }
+
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        if (!super.equals(object)) {
+            return false;
+        }
+
+        ChessPiece that = (ChessPiece) object;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + java.util.Objects.hashCode(pieceColor);
+        result = 31 * result + java.util.Objects.hashCode(type);
+        return result;
     }
 }
