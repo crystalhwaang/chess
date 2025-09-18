@@ -1,12 +1,8 @@
 package chess;
-
 import java.util.Collection;
-
+import java.util.HashSet;
 /**
  * Represents a single chess piece
- * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
  */
 public class ChessPiece {
 
@@ -53,7 +49,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         var moves = new HashSet<ChessMove>();
-        moves.add(new ChessMove(new ChessPosition(5,4), new ChessPosition(6,5)));
+        moves.add(new ChessMove(new ChessPosition(5,4), new ChessPosition(6,5), null));
         return moves;
     }
 
