@@ -34,6 +34,7 @@ public class ChessPosition {
         return String.format("[%d,%d]", row, col);
     }
 
+    @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) {
             return false;
@@ -46,6 +47,7 @@ public class ChessPosition {
         return row == that.row && col == that.col;
     }
 
+    @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + row;

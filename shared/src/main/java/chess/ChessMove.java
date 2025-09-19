@@ -48,6 +48,7 @@ public class ChessMove {
         return String.format("[%s:%s]",startPosition, endPosition);
     }
 
+    @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) {
             return false;
@@ -60,6 +61,7 @@ public class ChessMove {
         return java.util.Objects.equals(startPosition, chessMove.startPosition) && java.util.Objects.equals(endPosition, chessMove.endPosition) && promotionPiece == chessMove.promotionPiece;
     }
 
+    @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + java.util.Objects.hashCode(startPosition);

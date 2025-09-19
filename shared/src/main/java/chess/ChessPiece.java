@@ -1,9 +1,10 @@
 package chess;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-/**
- * Represents a single chess piece
- */
+import java.util.List;
+
+
 public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
@@ -14,9 +15,6 @@ public class ChessPiece {
         this.type = type;
     }
 
-    /**
-     * The various different chess piece options
-     */
     public enum PieceType {
         KING,
         QUEEN,
@@ -26,16 +24,10 @@ public class ChessPiece {
         PAWN
     }
 
-    /**
-     * @return Which team this chess piece belongs to
-     */
     public ChessGame.TeamColor getTeamColor() {
         return pieceColor;
     }
 
-    /**
-     * @return which type of chess piece this piece is
-     */
     public PieceType getPieceType() {
         return type;
     }
@@ -48,8 +40,39 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        var moves = new HashSet<ChessMove>();
-        moves.add(new ChessMove(new ChessPosition(5,4), new ChessPosition(6,5), null));
+        var moves = new ArrayList<ChessMove>();
+        var capture = new ArrayList<ChessMove>();
+        ChessPiece piece = board.getPiece(myPosition);
+
+        if (piece.getPieceType() == PieceType.BISHOP) {
+            int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+
+            for (int[] direction : directions) {
+                int row = myPosition.getRow();
+                int col = myPosition.getColumn();
+                while (true) {
+                    row += direction[0];
+                    col += direction[1];
+
+                    if (row < 1 || row > 8 || col < 1 || col > 8) {
+                        break;
+                    }
+
+                    ChessPosition newPos = new ChessPosition(row, col);
+                    ChessPiece spotTaken = board.getPiece(newPos);
+
+                    if (spotTaken == null) {
+                        moves.add(new ChessMove(myPosition, newPos, null));
+                    }
+                    else {
+                        if (spotTaken.getTeamColor() != piece.getTeamColor()) {
+                            capture.add(new ChessMove(myPosition, newPos, null));
+                        }
+                        break;
+                    }
+                }
+            }
+        }
         return moves;
     }
 
