@@ -10,7 +10,7 @@ import java.util.Arrays;
  */
 public class ChessBoard {
 
-    final private ChessPiece[][] board = new ChessPiece[8][8];
+    private final ChessPiece[][] board = new ChessPiece[8][8];
     public ChessBoard() {
         
     }
@@ -23,7 +23,7 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         //throw new RuntimeException("Not implemented");
-        board[position.getRow() - 1][position.getRow() - 1] = piece;
+        board[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
     /**
@@ -35,7 +35,7 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         //throw new RuntimeException("Not implemented");
-        return board[position.getRow() - 1][position.getRow() - 1]; //replace this with the above line later
+        return board[position.getRow() - 1][position.getColumn() - 1]; //replace this with the above line later
     }
 
     /**

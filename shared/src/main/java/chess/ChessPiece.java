@@ -40,14 +40,16 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        var moves = new ArrayList<ChessMove>();
+        List<ChessMove> moves = new ArrayList<ChessMove>();
         //var capture = new ArrayList<ChessMove>();
         ChessPiece piece = board.getPiece(myPosition);
 
         // code for the bishop piece
         if (piece.getPieceType() == PieceType.BISHOP) {
+            // all possible directions a bishop can go
             int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
+            // as long as they don't hit the edge of the board, keep in the same direction
             for (int[] direction : directions) {
                 int row = myPosition.getRow();
                 int col = myPosition.getColumn();
@@ -59,43 +61,15 @@ public class ChessPiece {
                         break;
                     }
 
+                    // create a ChessPosition for the new position that the piece is at on the board
                     ChessPosition newPos = new ChessPosition(row, col);
                     ChessPiece spotTaken = board.getPiece(newPos);
 
+                    // if there isn't a piece in the spot, add it to the moves array
                     if (spotTaken == null) {
                         moves.add(new ChessMove(myPosition, newPos, null));
                     }
-                    else {
-                        if (spotTaken.getTeamColor() != piece.getTeamColor()) { //issue is here -- the team colors are not different, why?
-                            moves.add(new ChessMove(myPosition, newPos, null));
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        // code for the rook piece
-        if (piece.getPieceType() == PieceType.ROOK) {
-            int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-
-            for (int[] direction : directions) {
-                int row = myPosition.getRow();
-                int col = myPosition.getColumn();
-                while (true) {
-                    row += direction[0];
-                    col += direction[1];
-
-                    if (row < 1 || row > 8 || col < 1 || col > 8) {
-                        break;
-                    }
-
-                    ChessPosition newPos = new ChessPosition(row, col);
-                    ChessPiece spotTaken = board.getPiece(newPos);
-
-                    if (spotTaken == null) {
-                        moves.add(new ChessMove(myPosition, newPos, null));
-                    }
+                    // if there is a piece there & it is the opposing team's, add it to the move's array, otherwise break
                     else {
                         if (spotTaken.getTeamColor() != piece.getTeamColor()) { //issue is here -- the team colors are not different, why?
                             moves.add(new ChessMove(myPosition, newPos, null));
