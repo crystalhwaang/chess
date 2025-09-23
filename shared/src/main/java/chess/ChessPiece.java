@@ -143,7 +143,7 @@ public class ChessPiece {
                     }
                     // if there is a piece there & it is the opposing team's, add it to the move's array, otherwise break
                     else {
-                        if (spotTaken.getTeamColor() != piece.getTeamColor()) { //issue is here -- the team colors are not different, why?
+                        if (spotTaken.getTeamColor() != piece.getTeamColor()) {
                             moves.add(new ChessMove(myPosition, newPos, null));
                         }
                         break;
@@ -226,6 +226,7 @@ public class ChessPiece {
         return moves;
     }
 
+    @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) {
             return false;
@@ -234,10 +235,15 @@ public class ChessPiece {
         return pieceColor == that.pieceColor && type == that.type;
     }
 
+//    public int hashCode() {
+//        int result = super.hashCode();
+//        result = 31 * result + java.util.Objects.hashCode(pieceColor);
+//        result = 31 * result + java.util.Objects.hashCode(type);
+//        return result;
+//    }
+
+    @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + java.util.Objects.hashCode(pieceColor);
-        result = 31 * result + java.util.Objects.hashCode(type);
-        return result;
+        return java.util.Objects.hash(pieceColor, type);
     }
 }
