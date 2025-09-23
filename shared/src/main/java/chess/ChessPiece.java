@@ -151,6 +151,78 @@ public class ChessPiece {
                 }
             }
         }
+
+        // code for the queen piece
+        if (piece.getPieceType() == PieceType.QUEEN) {
+            // all possible directions a queen can go
+            int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+            // as long as they don't hit the edge of the board, keep in the same direction
+            for (int[] direction : directions) {
+                int row = myPosition.getRow();
+                int col = myPosition.getColumn();
+                while (true) {
+                    row += direction[0];
+                    col += direction[1];
+
+                    if (row < 1 || row > 8 || col < 1 || col > 8) {
+                        break;
+                    }
+
+                    // create a ChessPosition for the new position that the piece is at on the board
+                    ChessPosition newPos = new ChessPosition(row, col);
+                    ChessPiece spotTaken = board.getPiece(newPos);
+
+                    // if there isn't a piece in the spot, add it to the moves array
+                    if (spotTaken == null) {
+                        moves.add(new ChessMove(myPosition, newPos, null));
+                    }
+                    // if there is a piece there & it is the opposing team's, add it to the move's array, otherwise break
+                    else {
+                        if (spotTaken.getTeamColor() != piece.getTeamColor()) { //issue is here -- the team colors are not different, why?
+                            moves.add(new ChessMove(myPosition, newPos, null));
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        // code for the king piece
+        if (piece.getPieceType() == PieceType.KING) {
+            // all possible directions a king can go
+            int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+            // as long as they don't hit the edge of the board, keep in the same direction
+            for (int[] direction : directions) {
+                int row = myPosition.getRow();
+                int col = myPosition.getColumn();
+                //while (true) {
+                    row += direction[0];
+                    col += direction[1];
+
+                    if (row < 1 || row > 8 || col < 1 || col > 8) {
+                        break;
+                    }
+
+                    // create a ChessPosition for the new position that the piece is at on the board
+                    ChessPosition newPos = new ChessPosition(row, col);
+                    ChessPiece spotTaken = board.getPiece(newPos);
+
+                    // if there isn't a piece in the spot, add it to the moves array
+                    if (spotTaken == null) {
+                        moves.add(new ChessMove(myPosition, newPos, null));
+                    }
+                    // if there is a piece there & it is the opposing team's, add it to the moves array, otherwise break
+                    else {
+                        if (spotTaken.getTeamColor() != piece.getTeamColor()) {
+                            moves.add(new ChessMove(myPosition, newPos, null));
+                        }
+                        //break;
+                    }
+                //}
+            }
+        }
         return moves;
     }
 
