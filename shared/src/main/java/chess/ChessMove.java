@@ -58,11 +58,15 @@ public class ChessMove {
     }
 
     @Override
+//    public int hashCode() {
+//        int result = super.hashCode();
+//        result = 31 * result + java.util.Objects.hashCode(startPosition);
+//        result = 31 * result + java.util.Objects.hashCode(endPosition);
+//        result = 31 * result + java.util.Objects.hashCode(promotionPiece);
+//        return java.util.Objects.hash(startPosition, endPosition, promotionPiece);
+//    }
+
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + java.util.Objects.hashCode(startPosition);
-        result = 31 * result + java.util.Objects.hashCode(endPosition);
-        result = 31 * result + java.util.Objects.hashCode(promotionPiece);
         return java.util.Objects.hash(startPosition, endPosition, promotionPiece);
     }
 }
