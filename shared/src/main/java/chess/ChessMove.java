@@ -63,7 +63,7 @@ public class ChessMove {
         result = 31 * result + java.util.Objects.hashCode(startPosition);
         result = 31 * result + java.util.Objects.hashCode(endPosition);
         result = 31 * result + java.util.Objects.hashCode(promotionPiece);
-        return result;
+        return java.util.Objects.hash(startPosition, endPosition, promotionPiece);
     }
 }
 

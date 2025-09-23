@@ -45,10 +45,14 @@ public class ChessPosition {
     }
 
     @Override
+//    public int hashCode() {
+//        int result = super.hashCode();
+//        result = 31 * result + row;
+//        result = 31 * result + col;
+//        return result;
+//    }
+
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + row;
-        result = 31 * result + col;
-        return result;
+        return java.util.Objects.hash(row, col);
     }
 }
