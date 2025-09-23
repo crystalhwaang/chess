@@ -39,9 +39,6 @@ public class ChessPosition {
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
-        if (!super.equals(object)) {
-            return false;
-        }
 
         ChessPosition that = (ChessPosition) object;
         return row == that.row && col == that.col;

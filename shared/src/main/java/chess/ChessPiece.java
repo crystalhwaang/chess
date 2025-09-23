@@ -41,9 +41,10 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         var moves = new ArrayList<ChessMove>();
-        var capture = new ArrayList<ChessMove>();
+        //var capture = new ArrayList<ChessMove>();
         ChessPiece piece = board.getPiece(myPosition);
 
+        // code for the bishop piece
         if (piece.getPieceType() == PieceType.BISHOP) {
             int[][] directions = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
@@ -65,8 +66,39 @@ public class ChessPiece {
                         moves.add(new ChessMove(myPosition, newPos, null));
                     }
                     else {
-                        if (spotTaken.getTeamColor() != piece.getTeamColor()) {
-                            capture.add(new ChessMove(myPosition, newPos, null));
+                        if (spotTaken.getTeamColor() != piece.getTeamColor()) { //issue is here -- the team colors are not different, why?
+                            moves.add(new ChessMove(myPosition, newPos, null));
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        // code for the rook piece
+        if (piece.getPieceType() == PieceType.ROOK) {
+            int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+            for (int[] direction : directions) {
+                int row = myPosition.getRow();
+                int col = myPosition.getColumn();
+                while (true) {
+                    row += direction[0];
+                    col += direction[1];
+
+                    if (row < 1 || row > 8 || col < 1 || col > 8) {
+                        break;
+                    }
+
+                    ChessPosition newPos = new ChessPosition(row, col);
+                    ChessPiece spotTaken = board.getPiece(newPos);
+
+                    if (spotTaken == null) {
+                        moves.add(new ChessMove(myPosition, newPos, null));
+                    }
+                    else {
+                        if (spotTaken.getTeamColor() != piece.getTeamColor()) { //issue is here -- the team colors are not different, why?
+                            moves.add(new ChessMove(myPosition, newPos, null));
                         }
                         break;
                     }
@@ -80,10 +112,6 @@ public class ChessPiece {
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
-        if (!super.equals(object)) {
-            return false;
-        }
-
         ChessPiece that = (ChessPiece) object;
         return pieceColor == that.pieceColor && type == that.type;
     }
