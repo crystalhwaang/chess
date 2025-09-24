@@ -119,19 +119,17 @@ public class ChessPiece {
         // code for the knight piece
         if (piece.getPieceType() == PieceType.KNIGHT) {
             // all possible directions a knight can go
-            int[][] directions = {{2, 1}, {-2, 1}, {2, -1}, {-2, -1}};
+            int[][] directions = {{2, 1}, {-2, 1}, {2, -1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
 
             // as long as they don't hit the edge of the board, keep in the same direction
             for (int[] direction : directions) {
                 int row = myPosition.getRow();
                 int col = myPosition.getColumn();
-                while (true) {
-                    row += direction[0];
-                    col += direction[1];
+                //while (true) {
+                row += direction[0];
+                col += direction[1];
 
-                    if (row < 1 || row > 8 || col < 1 || col > 8) {
-                        break;
-                    }
+                if (row >= 1 && row <= 8 && col >= 1 && col <= 8) {
 
                     // create a ChessPosition for the new position that the piece is at on the board
                     ChessPosition newPos = new ChessPosition(row, col);
@@ -146,7 +144,6 @@ public class ChessPiece {
                         if (spotTaken.getTeamColor() != piece.getTeamColor()) {
                             moves.add(new ChessMove(myPosition, newPos, null));
                         }
-                        break;
                     }
                 }
             }
@@ -198,12 +195,10 @@ public class ChessPiece {
                 int row = myPosition.getRow();
                 int col = myPosition.getColumn();
                 //while (true) {
-                    row += direction[0];
-                    col += direction[1];
+                row += direction[0];
+                col += direction[1];
 
-                    if (row < 1 || row > 8 || col < 1 || col > 8) {
-                        break;
-                    }
+                if (row >= 1 && row <= 8 && col >= 1 && col <= 8) {
 
                     // create a ChessPosition for the new position that the piece is at on the board
                     ChessPosition newPos = new ChessPosition(row, col);
@@ -220,7 +215,47 @@ public class ChessPiece {
                         }
                         //break;
                     }
-                //}
+                }
+            }
+        }
+
+        // code for the pawn piece
+        if (piece.getPieceType() == PieceType.PAWN) {
+
+            boolean hasMoved = false;
+
+            //
+
+
+            // all possible directions a pawn can go on the first turn
+            int[][] firstMoves = {{1, 0}, {2, 0}};
+
+            // as long as they don't hit the edge of the board, keep in the same direction
+            for (int[] direction : directions) {
+                int row = myPosition.getRow();
+                int col = myPosition.getColumn();
+                //while (true) {
+                row += direction[0];
+                col += direction[1];
+
+                if (row >= 1 && row <= 8 && col >= 1 && col <= 8) {
+
+                    // create a ChessPosition for the new position that the piece is at on the board
+                    ChessPosition newPos = new ChessPosition(row, col);
+                    ChessPiece spotTaken = board.getPiece(newPos);
+
+                    // if there isn't a piece in the spot, add it to the moves array
+                    if (spotTaken == null) {
+                        moves.add(new ChessMove(myPosition, newPos, null));
+                    }
+                    // if there is a piece there & it is the opposing team's, add it to the moves array, otherwise break
+                    else {
+                        if (spotTaken.getTeamColor() != piece.getTeamColor()) {
+                            moves.add(new ChessMove(myPosition, newPos, null));
+                        }
+                        //break;
+                    }
+                }
             }
         }
         return moves;
