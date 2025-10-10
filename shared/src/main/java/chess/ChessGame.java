@@ -258,4 +258,22 @@ public class ChessGame {
         }
         return false;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ChessGame chessGame = (ChessGame) o;
+        return Objects.equals(board, chessGame.board) && teamTurn == chessGame.teamTurn && Objects.equals(lastMove, chessGame.lastMove);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(board);
+        result = 31 * result + Objects.hashCode(teamTurn);
+        result = 31 * result + Objects.hashCode(lastMove);
+        return result;
+    }
 }
