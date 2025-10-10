@@ -83,18 +83,23 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece piece = board.getPiece(move.getStartPosition());
+
+        //if there is no piece at the start position
         if (piece == null) {
             throw new InvalidMoveException("No piece at start position");
         }
 
+        //if it isn't the team's turn
         if (piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("Not your turn");
         }
 
+        //if the move is not allowed
         if (!isValidMove(move)) {
             throw new InvalidMoveException("Invalid move");
         }
 
+        //if passes all exceptions, then continue with game and switch turns
         board.addPiece(move.getEndPosition(), piece);
         board.addPiece(move.getStartPosition(), null);
         if (move.getPromotionPiece() != null) {
@@ -130,6 +135,8 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+
+        //if king isn't in check, cannot be in checkmate
         if (!isInCheck(teamColor)) {
             return false;
         }
@@ -160,6 +167,8 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+
+        //if same color, cannot be in a stalemate
         if (isInCheck(teamColor)) {
             return false;
         }
@@ -200,10 +209,6 @@ public class ChessGame {
         return board;
     }
 
-    public ChessMove getLastMove() {
-        return lastMove;
-    }
-
     public ChessPosition getKingPos(TeamColor teamColor) {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
@@ -239,15 +244,23 @@ public class ChessGame {
         return !inCheck;
     }
 
-    public boolean isUnderAttack(ChessPosition position, TeamColor defendingTeam) {
-        TeamColor attackingTeam = (defendingTeam == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+    public boolean isUnderAttack(ChessPosition position, TeamColor defense) {
+        TeamColor attack;
+
+        //if one team is defense, then the other is automatically defense
+        if (defense == TeamColor.WHITE) {
+            attack = TeamColor.BLACK;
+        }
+        else {
+            attack = TeamColor.WHITE;
+        }
 
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
-                ChessPosition attackerPosition = new ChessPosition(row, col);
-                ChessPiece attacker = board.getPiece(attackerPosition);
-                if (attacker != null && attacker.getTeamColor() == attackingTeam) {
-                    Collection<ChessMove> moves = attacker.pieceMoves(board, attackerPosition, this);
+                ChessPosition attackPosition = new ChessPosition(row, col);
+                ChessPiece attackPiece = board.getPiece(attackPosition);
+                if (attackPiece != null && attackPiece.getTeamColor() == attack) {
+                    Collection<ChessMove> moves = attackPiece.pieceMoves(board, attackPosition, this);
                     for (ChessMove move : moves) {
                         if (move.getEndPosition().equals(position)) {
                             return true;
