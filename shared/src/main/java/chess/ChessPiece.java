@@ -93,7 +93,8 @@ public class ChessPiece {
             dir = 1;
             startRow = 2;
             promoteRow = 8;
-        } else {
+        }
+        else {
             dir = -1;
             startRow = 7;
             promoteRow = 1;
@@ -106,7 +107,8 @@ public class ChessPiece {
                 moves.add(new ChessMove(myPosition, forwardPos, PieceType.ROOK));
                 moves.add(new ChessMove(myPosition, forwardPos, PieceType.BISHOP));
                 moves.add(new ChessMove(myPosition, forwardPos, PieceType.KNIGHT));
-            } else {
+            }
+            else {
                 moves.add(new ChessMove(myPosition, forwardPos, null));
             }
         }
@@ -128,7 +130,8 @@ public class ChessPiece {
                         moves.add(new ChessMove(myPosition, capturePos, PieceType.ROOK));
                         moves.add(new ChessMove(myPosition, capturePos, PieceType.BISHOP));
                         moves.add(new ChessMove(myPosition, capturePos, PieceType.KNIGHT));
-                    } else {
+                    }
+                    else {
                         moves.add(new ChessMove(myPosition, capturePos, null));
                     }
                 }
@@ -197,8 +200,7 @@ public class ChessPiece {
     }
 
     protected boolean isValidPosition(ChessPosition position) {
-        return position.getRow() >= 1 && position.getRow() <= 8 &&
-                position.getColumn() >= 1 && position.getColumn() <= 8;
+        return position.getRow() >= 1 && position.getRow() <= 8 && position.getColumn() >= 1 && position.getColumn() <= 8;
     }
 
     protected Collection<ChessMove> movingPieces(ChessBoard board, ChessPosition myPosition, int rowDir, int colDir) {
