@@ -2,10 +2,15 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
+import exception.AlreadyTakenException;
 import exception.UnauthorizedException;
 import model.AuthData;
+import model.GameData;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import result.CreateGameResult;
+
+import java.util.List;
 
 public class GameService {
     private final AuthDAO authDAO;
@@ -28,6 +33,27 @@ public class GameService {
 
         int gameID = gameDAO.createGame(request.gameName(), auth.username());
         return new CreateGameResult(gameID);
+    }
+
+    public void joinGame(String authToken, JoinGameRequest request) throws UnauthorizedException, AlreadyTakenException {
+        AuthData auth = authDAO.getAuth(authToken);
+        if (auth == null) {
+            throw new UnauthorizedException("Invalid auth token");
+        }
+
+        if (request.playerColor() == null || (!request.playerColor().equalsIgnoreCase("WHITE") && !request.playerColor().equalsIgnoreCase("BLACK"))) {
+            throw new IllegalArgumentException("Invalid color");
+        }
+
+        gameDAO.joinGame(request.gameID(), request.playerColor(), auth.username());
+    }
+
+    public List<GameData> listGames(String authToken) throws UnauthorizedException {
+        AuthData auth = authDAO.getAuth(authToken);
+        if (auth == null) {
+            throw new UnauthorizedException("Invalid auth token");
+        }
+        return gameDAO.listGames();
     }
 }
 

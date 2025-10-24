@@ -6,8 +6,11 @@ import exception.UnauthorizedException;
 import io.javalin.*;
 import com.google.gson.Gson;
 import io.javalin.http.Context;
+import model.AuthData;
+import model.GameData;
 import org.jetbrains.annotations.NotNull;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.CreateGameResult;
@@ -19,6 +22,7 @@ import service.GameService;
 import service.UserService;
 
 import java.util.Collections;
+import java.util.List;
 
 public class Server {
 
@@ -47,6 +51,8 @@ public class Server {
         javalin.post("/session", this::handleLogin);
         javalin.delete("/session", this::handleLogout);
         javalin.post("/game", this::handleCreateGame);
+        javalin.put("/game", this::handleJoinGame);
+        javalin.get("/game", this::handleListGame);
     }
 
     private void handleClear(@NotNull Context context) {
@@ -159,6 +165,51 @@ public class Server {
         }
     }
 
+    private void handleJoinGame(@NotNull Context context) {
+        String authToken = context.header("authorization");
+        if (authToken == null || authToken.isBlank()) {
+            context.status(401).result(gson.toJson(new ErrorResponse(null, "Error: unauthorized")));
+            return;
+        }
+
+        JoinGameRequest request;
+        try {
+            request = gson.fromJson(context.body(), JoinGameRequest.class);
+        } catch (Exception e) {
+            context.status(400).result(gson.toJson(new ErrorResponse(null, "Error: bad request")));
+            return;
+        }
+        try {
+            gameService.joinGame(authToken, request);
+            context.status(200).result(gson.toJson(new java.util.HashMap<>()));
+        } catch (UnauthorizedException e) {
+            context.status(401).result(gson.toJson(new ErrorResponse(null, "Error: unauthorized")));
+        } catch (AlreadyTakenException e) {
+            context.status(403).result(gson.toJson(new ErrorResponse(null, "Error: already taken")));
+        } catch (IllegalArgumentException e) {
+            context.status(400).result(gson.toJson(new ErrorResponse(null, "Error: bad request")));
+        } catch (Exception e) {
+            context.status(500).result(gson.toJson(new ErrorResponse(null, "Error: " + e.getMessage())));
+        }
+    }
+
+    private void handleListGame(@NotNull Context context) {
+        String authToken = context.header("authorization");
+        if (authToken == null || authToken.isBlank()) {
+            context.status(401).result(gson.toJson(new ErrorResponse(null, "Error: unauthorized")));
+            return;
+        }
+
+        try {
+            List<GameData> games = gameService.listGames(authToken);
+            context.status(200).result(gson.toJson(Collections.singletonMap("games", games)));
+
+        } catch (UnauthorizedException e) {
+            context.status(401).result(gson.toJson(new ErrorResponse(null, "Error: unauthorized")));
+        } catch (Exception e) {
+            context.status(500).result(gson.toJson(new ErrorResponse(null, "Error: " + e.getMessage())));
+        }
+    }
 
     public int run(int desiredPort) {
         javalin.start(desiredPort);
