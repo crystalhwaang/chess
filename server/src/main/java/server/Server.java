@@ -18,6 +18,8 @@ import result.RegisterResult;
 import service.DatabaseService;
 import service.UserService;
 
+import java.util.Collections;
+
 public class Server {
 
     private final Javalin javalin;
@@ -40,6 +42,7 @@ public class Server {
         javalin.post("/user", this::handleRegister);
         javalin.delete("/db", this::handleClear);
         javalin.post("/session", this::handleLogin);
+        javalin.delete("/session", this::handleLogout);
     }
 
     private void handleClear(@NotNull Context context) {
@@ -99,6 +102,24 @@ public class Server {
             context.status(403).result(gson.toJson(new ErrorResponse(null,"Error: already taken")));
         } catch (Exception e) {
             context.status(500).result(gson.toJson(new ErrorResponse(null,"Error: " + e.getMessage())));
+        }
+    }
+
+    private void handleLogout(@NotNull Context context) {
+        String authToken = context.header("authorization");
+
+        if (authToken == null || authToken.isBlank()) {
+            context.status(401).result(gson.toJson(new ErrorResponse(null,"Error: unauthorized")));
+            return;
+        }
+
+        try {
+            userService.logout(authToken);
+            context.status(200).result(gson.toJson(new java.util.HashMap<>()));
+        } catch (UnauthorizedException e) {
+            context.status(401).result(gson.toJson(new ErrorResponse(null, "Error: unauthorized")));
+        } catch (Exception e) {
+            context.status(500).result(gson.toJson(new ErrorResponse(null, "Error: " + e.getMessage())));
         }
     }
 
