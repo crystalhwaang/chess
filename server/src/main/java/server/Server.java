@@ -1,4 +1,5 @@
 package server;
+
 import dataaccess.*;
 import exception.AlreadyTakenException;
 import exception.UnauthorizedException;
@@ -39,6 +40,7 @@ public class Server {
         registerEndpoints();
     }
 
+    //registering each endpoint according to their http methods and paths
     private void registerEndpoints() {
         javalin.post("/user", this::handleRegister);
         javalin.delete("/db", this::handleClear);
@@ -49,6 +51,7 @@ public class Server {
         javalin.get("/game", this::handleListGame);
     }
 
+    // clear application -- success response & 500 failure response
     private void handleClear(@NotNull Context context) {
             try {
                 databaseService.clearDatabase();
@@ -58,6 +61,7 @@ public class Server {
             }
     }
 
+    // login -- success response & 400 & 401 & 500 failure response
     private void handleLogin(@NotNull Context context) {
         LoginRequest request;
         try {
@@ -81,6 +85,7 @@ public class Server {
         }
     }
 
+    // register -- success response & 400 & 403 & 500 failure response
     private void handleRegister(@NotNull Context context) {
         RegisterRequest request;
         try {
@@ -103,6 +108,7 @@ public class Server {
         }
     }
 
+    // logout -- success response & 401 & 500 failure response
     private void handleLogout(@NotNull Context context) {
         String authToken = context.header("authorization");
         if (authToken == null || authToken.isBlank()) {
@@ -119,6 +125,7 @@ public class Server {
         }
     }
 
+    // create game -- success response & 400 & 401 & 500 failure response
     private void handleCreateGame(@NotNull Context context) {
         String authToken = context.header("authorization");
         if (authToken == null || authToken.isBlank()) {
@@ -148,6 +155,7 @@ public class Server {
         }
     }
 
+    // join game -- success response & 400 & 401 & 403 & 500 failure response
     private void handleJoinGame(@NotNull Context context) {
         String authToken = context.header("authorization");
         if (authToken == null || authToken.isBlank()) {
@@ -175,6 +183,7 @@ public class Server {
         }
     }
 
+    // list games -- success response & 401 & 500 failure response
     private void handleListGame(@NotNull Context context) {
         String authToken = context.header("authorization");
         if (authToken == null || authToken.isBlank()) {
@@ -191,11 +200,13 @@ public class Server {
         }
     }
 
+    // start javalin server
     public int run(int desiredPort) {
         javalin.start(desiredPort);
         return javalin.port();
     }
 
+    // end javalin server
     public void stop() {
         javalin.stop();
     }
