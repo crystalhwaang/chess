@@ -1,5 +1,4 @@
 package server;
-
 import dataaccess.*;
 import exception.AlreadyTakenException;
 import exception.UnauthorizedException;
@@ -20,12 +19,10 @@ import result.RegisterResult;
 import service.DatabaseService;
 import service.GameService;
 import service.UserService;
-
 import java.util.Collections;
 import java.util.List;
 
 public class Server {
-
     private final Javalin javalin;
     private final Gson gson = new Gson();
     private final UserService userService;
@@ -33,15 +30,13 @@ public class Server {
     private final GameService gameService;
 
     public Server() {
-
         UserDAO userDAO = new MemoryUserDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
         GameDAO gameDAO = new MemoryGameDAO();
         userService = new UserService(userDAO, authDAO);
-        databaseService = new DatabaseService(userDAO, authDAO);
+        databaseService = new DatabaseService(userDAO, authDAO, gameDAO);
         gameService = new GameService(authDAO, gameDAO);
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
-
         registerEndpoints();
     }
 
@@ -51,7 +46,6 @@ public class Server {
         javalin.post("/session", this::handleLogin);
         javalin.delete("/session", this::handleLogout);
         javalin.post("/game", this::handleCreateGame);
-        javalin.put("/game", this::handleJoinGame);
         javalin.get("/game", this::handleListGame);
     }
 
@@ -72,7 +66,6 @@ public class Server {
             context.status(400).result(gson.toJson(new ErrorResponse(null, "Error: bad request")));
             return;
         }
-
         if (request.username() == null || request.username().isBlank() ||
                 request.password() == null || request.password().isBlank()) {
             context.status(400).result(gson.toJson(new ErrorResponse(null, "Error: bad request")));
@@ -98,9 +91,7 @@ public class Server {
             return;
         }
 
-        if (request.username() == null || request.username().isBlank() ||
-                request.password() == null || request.password().isBlank() ||
-                request.email() == null || request.email().isBlank()) {
+        if (request.username() == null || request.username().isBlank() || request.password() == null || request.password().isBlank() || request.email() == null || request.email().isBlank()) {
             context.status(400).result(gson.toJson(new ErrorResponse(null, "Error: bad request")));
             return;
         }
@@ -117,7 +108,6 @@ public class Server {
 
     private void handleLogout(@NotNull Context context) {
         String authToken = context.header("authorization");
-
         if (authToken == null || authToken.isBlank()) {
             context.status(401).result(gson.toJson(new ErrorResponse(null,"Error: unauthorized")));
             return;
@@ -139,7 +129,6 @@ public class Server {
             context.status(401).result(gson.toJson(new ErrorResponse(null,"Error: unauthorized")));
             return;
         }
-
         CreateGameRequest request;
         try {
             request = gson.fromJson(context.body(), CreateGameRequest.class);
@@ -171,7 +160,6 @@ public class Server {
             context.status(401).result(gson.toJson(new ErrorResponse(null, "Error: unauthorized")));
             return;
         }
-
         JoinGameRequest request;
         try {
             request = gson.fromJson(context.body(), JoinGameRequest.class);
@@ -203,7 +191,6 @@ public class Server {
         try {
             List<GameData> games = gameService.listGames(authToken);
             context.status(200).result(gson.toJson(Collections.singletonMap("games", games)));
-
         } catch (UnauthorizedException e) {
             context.status(401).result(gson.toJson(new ErrorResponse(null, "Error: unauthorized")));
         } catch (Exception e) {

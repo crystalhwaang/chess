@@ -31,7 +31,6 @@ public class MemoryGameDAO implements GameDAO {
         if (game == null) {
             throw new IllegalArgumentException("Game does not exist");
         }
-
         if ("WHITE".equalsIgnoreCase(playerColor)) {
             if (game.whiteUsername() != null) throw new AlreadyTakenException("White already taken");
             games.put(gameID, new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game()));
@@ -41,5 +40,10 @@ public class MemoryGameDAO implements GameDAO {
         } else {
             throw new IllegalArgumentException("Invalid color: " + playerColor);
         }
+    }
+
+    @Override
+    public void clearAll() {
+        games.clear();
     }
 }

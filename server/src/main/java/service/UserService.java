@@ -25,7 +25,7 @@ public class UserService {
     public RegisterResult register(RegisterRequest request) throws AlreadyTakenException {
         UserData existing = userDAO.getUser(request.username());
         if (existing != null) {
-            throw new AlreadyTakenException("username already taken");
+            throw new AlreadyTakenException("Username already taken");
         }
 
         UserData newUser = new UserData(request.username(), request.password(), request.email());
