@@ -5,7 +5,6 @@ import exception.UnauthorizedException;
 import io.javalin.*;
 import com.google.gson.Gson;
 import io.javalin.http.Context;
-import model.AuthData;
 import model.GameData;
 import org.jetbrains.annotations.NotNull;
 import request.CreateGameRequest;

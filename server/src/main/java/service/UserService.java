@@ -1,5 +1,4 @@
 package service;
-
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import exception.AlreadyTakenException;
@@ -10,7 +9,6 @@ import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
 import result.RegisterResult;
-
 import java.util.UUID;
 
 public class UserService {
@@ -53,7 +51,6 @@ public class UserService {
         if (auth == null) {
             throw new UnauthorizedException("Invalid auth token");
         }
-
         authDAO.deleteAuth(authToken);
     }
 }
