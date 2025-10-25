@@ -3,6 +3,7 @@ import exception.AlreadyTakenException;
 import model.GameData;
 import java.util.List;
 
+// how game program interacts with database
 public interface GameDAO {
     int createGame(String gameName, String ownerUsername);
     List<GameData> listGames();

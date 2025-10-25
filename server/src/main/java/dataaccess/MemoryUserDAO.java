@@ -3,6 +3,7 @@ import model.UserData;
 import java.util.HashMap;
 import java.util.Map;
 
+// stores user accounts
 public class MemoryUserDAO implements UserDAO {
     private final Map<String, UserData> users = new HashMap<>();
 

@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+// stores game data
 public class MemoryGameDAO implements GameDAO {
     private final AtomicInteger idCounter = new AtomicInteger(1);
     private final ConcurrentHashMap<Integer, GameData> games = new ConcurrentHashMap<>();
