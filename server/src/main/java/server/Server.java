@@ -71,7 +71,6 @@ public class Server {
             context.status(400).result(gson.toJson(new ErrorResponse(null, "Error: bad request")));
             return;
         }
-
         try {
             LoginResult result = userService.login(request);
             context.status(200).result(gson.toJson(result));
@@ -90,12 +89,10 @@ public class Server {
             context.status(400).result(gson.toJson(new ErrorResponse(null,"Error: bad request")));
             return;
         }
-
         if (request.username() == null || request.username().isBlank() || request.password() == null || request.password().isBlank() || request.email() == null || request.email().isBlank()) {
             context.status(400).result(gson.toJson(new ErrorResponse(null, "Error: bad request")));
             return;
         }
-
         try {
             RegisterResult result = userService.register(request);
             context.status(200).result(gson.toJson(result));
@@ -112,7 +109,6 @@ public class Server {
             context.status(401).result(gson.toJson(new ErrorResponse(null,"Error: unauthorized")));
             return;
         }
-
         try {
             userService.logout(authToken);
             context.status(200).result(gson.toJson(new java.util.HashMap<>()));
@@ -136,12 +132,10 @@ public class Server {
             context.status(400).result(gson.toJson(new ErrorResponse(null,"Error: bad request")));
             return;
         }
-
         if (request.gameName() == null || request.gameName().isBlank()) {
             context.status(400).result(gson.toJson(new ErrorResponse(null,"Error: bad request")));
             return;
         }
-
         try {
             CreateGameResult result = gameService.createGame(authToken, request);
             context.status(200).result(gson.toJson(result));
@@ -187,7 +181,6 @@ public class Server {
             context.status(401).result(gson.toJson(new ErrorResponse(null, "Error: unauthorized")));
             return;
         }
-
         try {
             List<GameData> games = gameService.listGames(authToken);
             context.status(200).result(gson.toJson(Collections.singletonMap("games", games)));
