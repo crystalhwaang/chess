@@ -33,10 +33,14 @@ public class MemoryGameDAO implements GameDAO {
             throw new IllegalArgumentException("Game does not exist");
         }
         if ("WHITE".equalsIgnoreCase(playerColor)) {
-            if (game.whiteUsername() != null) throw new AlreadyTakenException("White already taken");
+            if (game.whiteUsername() != null) {
+                throw new AlreadyTakenException("White already taken");
+            }
             games.put(gameID, new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game()));
         } else if ("BLACK".equalsIgnoreCase(playerColor)) {
-            if (game.blackUsername() != null) throw new AlreadyTakenException("Black already taken");
+            if (game.blackUsername() != null) {
+                throw new AlreadyTakenException("Black already taken");
+            }
             games.put(gameID, new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game()));
         } else {
             throw new IllegalArgumentException("Invalid color: " + playerColor);

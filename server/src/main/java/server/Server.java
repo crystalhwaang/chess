@@ -94,7 +94,9 @@ public class Server {
             context.status(400).result(gson.toJson(new ErrorResponse(null,"Error: bad request")));
             return;
         }
-        if (request.username() == null || request.username().isBlank() || request.password() == null || request.password().isBlank() || request.email() == null || request.email().isBlank()) {
+        if (request.username() == null || request.username().isBlank() ||
+                request.password() == null || request.password().isBlank() ||
+                request.email() == null || request.email().isBlank()) {
             context.status(400).result(gson.toJson(new ErrorResponse(null, "Error: bad request")));
             return;
         }

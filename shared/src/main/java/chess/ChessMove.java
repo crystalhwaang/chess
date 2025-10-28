@@ -54,18 +54,12 @@ public class ChessMove {
             return false;
         }
         ChessMove chessMove = (ChessMove) object;
-        return java.util.Objects.equals(startPosition, chessMove.startPosition) && java.util.Objects.equals(endPosition, chessMove.endPosition) && promotionPiece == chessMove.promotionPiece;
+        return java.util.Objects.equals(startPosition, chessMove.startPosition)
+                && java.util.Objects.equals(endPosition, chessMove.endPosition)
+                && promotionPiece == chessMove.promotionPiece;
     }
 
     @Override
-//    public int hashCode() {
-//        int result = super.hashCode();
-//        result = 31 * result + java.util.Objects.hashCode(startPosition);
-//        result = 31 * result + java.util.Objects.hashCode(endPosition);
-//        result = 31 * result + java.util.Objects.hashCode(promotionPiece);
-//        return java.util.Objects.hash(startPosition, endPosition, promotionPiece);
-//    }
-
     public int hashCode() {
         return java.util.Objects.hash(startPosition, endPosition, promotionPiece);
     }
