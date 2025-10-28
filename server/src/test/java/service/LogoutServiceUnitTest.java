@@ -23,7 +23,7 @@ public class LogoutServiceUnitTest {
     }
 
     @Test
-    public void logout_success() throws Exception {
+    public void logoutSuccess() throws Exception {
         var request = new RegisterRequest("user", "pass", "email@test.com");
         var result = service.register(request);
 
@@ -41,7 +41,7 @@ public class LogoutServiceUnitTest {
     }
 
     @Test
-    public void logout_fails() throws Exception {
+    public void logoutFails() throws Exception {
         service.register(new RegisterRequest("user", "pass", "email@test.com"));
 
         var ex = assertThrows(Exception.class, () -> service.login(new LoginRequest("user", "password")));

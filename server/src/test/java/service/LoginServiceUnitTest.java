@@ -23,7 +23,7 @@ public class LoginServiceUnitTest {
     }
 
     @Test
-    public void login_success() throws Exception {
+    public void loginSuccess() throws Exception {
         var request = new RegisterRequest("user", "pass", "email@test.com");
         var result = service.register(request);
 
@@ -37,7 +37,7 @@ public class LoginServiceUnitTest {
     }
 
     @Test
-    public void login_fails() throws Exception {
+    public void loginFails() throws Exception {
         service.register(new RegisterRequest("user", "pass", "email@test.com"));
 
         var ex = assertThrows(Exception.class, () -> service.login(new LoginRequest("user", "password")));

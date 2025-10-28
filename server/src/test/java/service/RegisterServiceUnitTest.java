@@ -21,7 +21,7 @@ public class RegisterServiceUnitTest {
     }
 
     @Test
-    public void register_success() throws Exception {
+    public void registerSuccess() throws Exception {
         var request = new RegisterRequest("user", "pass", "email@test.com");
         var result = service.register(request);
 
@@ -31,7 +31,7 @@ public class RegisterServiceUnitTest {
     }
 
     @Test
-    public void register_usernameAlreadyTaken_fails() throws Exception {
+    public void registerFails() throws Exception {
         service.register(new RegisterRequest("user", "pass", "email@test.com"));
         var duplicate = new RegisterRequest("user", "pass2", "email2@test.com");
         var ex = assertThrows(Exception.class, () -> service.register(duplicate));
