@@ -135,7 +135,6 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-
         //if king isn't in check, cannot be in checkmate
         if (!isInCheck(teamColor)) {
             return false;
@@ -145,18 +144,26 @@ public class ChessGame {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition currPos = new ChessPosition(row, col);
-                ChessPiece piece = board.getPiece(currPos);
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    Collection<ChessMove> moves = piece.pieceMoves(board, currPos);
-                    for (ChessMove move : moves) {
-                        if (isValidMove(move)) {
-                            return false;
-                        }
-                    }
+                if (outOfCheck(board, currPos, teamColor)) {
+                    return false;
                 }
             }
         }
         return true;
+    }
+
+    private boolean outOfCheck(ChessBoard board, ChessPosition currPos, TeamColor teamColor) {
+        ChessPiece piece = board.getPiece(currPos);
+        if (piece == null || piece.getTeamColor() != teamColor) {
+            return false;
+        }
+
+        for (ChessMove move : piece.pieceMoves(board, currPos)) {
+            if (isValidMove(move)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -167,7 +174,6 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-
         //if same color, cannot be in a stalemate
         if (isInCheck(teamColor)) {
             return false;
@@ -177,18 +183,26 @@ public class ChessGame {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition position = new ChessPosition(row, col);
-                ChessPiece piece = board.getPiece(position);
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    Collection<ChessMove> moves = piece.pieceMoves(board, position);
-                    for (ChessMove move : moves) {
-                        if (isValidMove(move)) {
-                            return false;
-                        }
-                    }
+                if (pieceCanMove(board, position, teamColor)) {
+                    return false;
                 }
             }
         }
         return true;
+    }
+
+    private boolean pieceCanMove(ChessBoard board, ChessPosition position, TeamColor teamColor) {
+        ChessPiece piece = board.getPiece(position);
+        if (piece == null || piece.getTeamColor() != teamColor) {
+            return false;
+        }
+
+        for (ChessMove move : piece.pieceMoves(board, position)) {
+            if (isValidMove(move)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -257,19 +271,28 @@ public class ChessGame {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition attackPosition = new ChessPosition(row, col);
-                ChessPiece attackPiece = board.getPiece(attackPosition);
-                if (attackPiece != null && attackPiece.getTeamColor() == attack) {
-                    Collection<ChessMove> moves = attackPiece.pieceMoves(board, attackPosition, this);
-                    for (ChessMove move : moves) {
-                        if (move.getEndPosition().equals(position)) {
-                            return true;
-                        }
-                    }
+                if (positionAttacked(board, attackPosition, attack, position)) {
+                    return true;
                 }
             }
         }
         return false;
     }
+
+    private boolean positionAttacked(ChessBoard board, ChessPosition fromPos, TeamColor attack, ChessPosition targetPos) {
+        ChessPiece attackPiece = board.getPiece(fromPos);
+        if (attackPiece == null || attackPiece.getTeamColor() != attack) {
+            return false;
+        }
+
+        for (ChessMove move : attackPiece.pieceMoves(board, fromPos, this)) {
+            if (move.getEndPosition().equals(targetPos)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     @Override
     public boolean equals(Object o) {

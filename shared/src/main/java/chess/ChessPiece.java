@@ -1,6 +1,6 @@
 package chess;
-import java.util.*;
 
+import java.util.*;
 
 public class ChessPiece {
 
@@ -54,14 +54,6 @@ public class ChessPiece {
         }
         return moves;
     }
-
-    /**
-     * Calculates all the positions a chess piece can move to
-     * Does not take into account moves that are illegal due to leaving the king in
-     * danger
-     *
-     * @return Collection of valid moves
-     */
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> moves = new ArrayList<>();
@@ -176,7 +168,6 @@ public class ChessPiece {
 
     protected Collection<ChessMove> getKnightMoves(ChessBoard board, ChessPosition myPosition) {
         int[][] knightMoves = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
-
         return generateOffsetMoves(board, myPosition, knightMoves, pieceColor);
     }
 
@@ -189,7 +180,6 @@ public class ChessPiece {
 
     protected Collection<ChessMove> getKingMoves(ChessBoard board, ChessPosition myPosition) {
         int[][] kingMoves = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-
         return generateOffsetMoves(board, myPosition, kingMoves, pieceColor);
     }
 
