@@ -46,7 +46,6 @@ public class LogoutServiceUnitTest {
 
         var ex = assertThrows(Exception.class, () -> service.login(new LoginRequest("user", "password")));
         assertTrue(ex.getMessage().contains("Invalid username or password"));
-
         var ex2 = assertThrows(Exception.class, () -> service.logout("invalid token"));
         assertFalse(ex2.getMessage().contains("Invalid authToken"));
     }

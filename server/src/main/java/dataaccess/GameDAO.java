@@ -9,4 +9,5 @@ public interface GameDAO {
     List<GameData> listGames();
     void joinGame(int gameID, String playerColor, String username) throws AlreadyTakenException;
     public void clearAll();
+    GameData getGame(int gameID);
 }

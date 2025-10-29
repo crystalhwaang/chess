@@ -39,7 +39,6 @@ public class LoginServiceUnitTest {
     @Test
     public void loginFails() throws Exception {
         service.register(new RegisterRequest("user", "pass", "email@test.com"));
-
         var ex = assertThrows(Exception.class, () -> service.login(new LoginRequest("user", "password")));
         assertTrue(ex.getMessage().contains("Invalid username or password"));
     }

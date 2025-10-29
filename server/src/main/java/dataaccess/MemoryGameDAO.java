@@ -48,6 +48,11 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
+    public GameData getGame(int gameID) {
+        return games.get(gameID);
+    }
+
+    @Override
     public void clearAll() {
         games.clear();
     }
