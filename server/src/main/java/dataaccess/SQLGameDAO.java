@@ -24,6 +24,13 @@ public class SQLGameDAO implements GameDAO {
             stmt.setString(3, null);
             stmt.setString(4, gson.toJson(new ChessGame()));
             stmt.executeUpdate();
+            try (var rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1); // or rs.getInt("gameID") if column names are available
+                } else {
+                    throw new DataAccessException("Failed to retrieve generated gameID");
+                }
+            }
         } catch (SQLException e) {
             throw new DataAccessException("Error creating game", e);
         } catch (DataAccessException e) {

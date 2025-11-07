@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -39,7 +40,7 @@ public class SQLUserDAO implements UserDAO{
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, user.username());
-            stmt.setString(2, user.password());
+            stmt.setString(2, hashUserPassword(user.password()));
             stmt.setString(3, user.email());
             stmt.executeUpdate();
 
@@ -49,6 +50,10 @@ public class SQLUserDAO implements UserDAO{
             }
             throw new DataAccessException("Error creating user", e);
         }
+    }
+
+    private String hashUserPassword(    String clearTextPassword) {
+        return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
     }
 
     @Override

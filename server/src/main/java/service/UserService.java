@@ -7,6 +7,7 @@ import exception.AlreadyTakenException;
 import exception.UnauthorizedException;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
@@ -41,7 +42,7 @@ public class UserService {
     public LoginResult login(LoginRequest request) throws UnauthorizedException, DataAccessException {
         UserData user = userDAO.getUser(request.username());
         // check if password or username is valid
-        if (user == null || !user.password().equals(request.password())) {
+        if (user == null || !user.password().equals(BCrypt.hashpw(request.password(), BCrypt.gensalt()))) {
             throw new UnauthorizedException("Invalid username or password");
         }
         // new authToken
@@ -51,7 +52,7 @@ public class UserService {
         return new LoginResult(user.username(), authToken);
     }
 
-    public void logout(String authToken) throws UnauthorizedException {
+    public void logout(String authToken) throws UnauthorizedException, DataAccessException {
         AuthData auth = authDAO.getAuth(authToken);
         // check if authToken is invalid
         if (auth == null) {
