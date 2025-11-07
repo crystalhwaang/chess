@@ -1,5 +1,6 @@
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
+import dataaccess.MemoryUserDAO;
 import server.Server;
 
 import java.sql.SQLException;

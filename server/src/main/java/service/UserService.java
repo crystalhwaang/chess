@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import exception.AlreadyTakenException;
 import exception.UnauthorizedException;
@@ -21,7 +22,7 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
-    public RegisterResult register(RegisterRequest request) throws AlreadyTakenException {
+    public RegisterResult register(RegisterRequest request) throws AlreadyTakenException, DataAccessException {
         // check if username exists
         UserData existing = userDAO.getUser(request.username());
         if (existing != null) {
@@ -37,7 +38,7 @@ public class UserService {
         return new RegisterResult(request.username(), authToken);
     }
 
-    public LoginResult login(LoginRequest request) throws UnauthorizedException {
+    public LoginResult login(LoginRequest request) throws UnauthorizedException, DataAccessException {
         UserData user = userDAO.getUser(request.username());
         // check if password or username is valid
         if (user == null || !user.password().equals(request.password())) {

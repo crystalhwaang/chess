@@ -1,5 +1,7 @@
 package dataaccess;
 
+import model.UserData;
+
 import java.sql.*;
 import java.util.Properties;
 
@@ -49,9 +51,8 @@ public class DatabaseManager {
 
     private static final String CREATE_TABLE_SQL_AUTH =
             "CREATE TABLE IF NOT EXISTS " + "AUTH_DATA" + " (" +
-                    "id INT AUTO_INCREMENT PRIMARY KEY, " +
-                    "username VARCHAR(255), " +
-                    "authToken VARCHAR(255)" +
+                    "authToken VARCHAR(255) PRIMARY KEY, " +
+                    "username VARCHAR(255) " +
                     ")";
 
     private static void createTables() throws SQLException {
@@ -62,6 +63,10 @@ public class DatabaseManager {
             stmt.executeUpdate(CREATE_TABLE_SQL_USER);
             stmt.executeUpdate(CREATE_TABLE_SQL_AUTH);
             System.out.println("✅ All Three Tables are ready in database: " + databaseName);
+            SQLUserDAO dao = new SQLUserDAO();
+            dao.createUser(new UserData("root", "tap123", "info@gmail.com"));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
