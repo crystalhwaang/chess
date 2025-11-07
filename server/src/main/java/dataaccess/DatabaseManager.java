@@ -43,7 +43,7 @@ public class DatabaseManager {
                     ")";
 
     private static final String CREATE_TABLE_SQL_USER =
-            "CREATE TABLE IF NOT EXISTS USER_DATA (" +
+            "CREATE TABLE IF NOT EXISTS" + "chess.user_data" + "(" +
                     "username VARCHAR(255) PRIMARY KEY, " +
                     "password VARCHAR(255) NOT NULL, " +
                     "email VARCHAR(100)" +
@@ -56,7 +56,7 @@ public class DatabaseManager {
                     ")";
 
     private static void createTables() throws SQLException {
-        var dbUrl = connectionUrl + "/" + databaseName;
+        var dbUrl = connectionUrl + databaseName;
         try (Connection conn = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
              Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(CREATE_TABLE_SQL_GAME);
@@ -84,7 +84,6 @@ public class DatabaseManager {
      */
     static Connection getConnection() throws DataAccessException {
         try {
-            //do not wrap the following line with a try-with-resources
             var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
             conn.setCatalog(databaseName);
             return conn;
@@ -113,6 +112,6 @@ public class DatabaseManager {
 
         var host = props.getProperty("db.host");
         var port = Integer.parseInt(props.getProperty("db.port"));
-        connectionUrl = String.format("jdbc:mysql://%s:%d", host, port);
+        connectionUrl = String.format("jdbc:mysql://%s:%d/", host, port);
     }
 }

@@ -13,7 +13,7 @@ public class SQLUserDAO implements UserDAO{
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        String sql = "SELECT username, password, email FROM USER_DATA WHERE username = ?";
+        String sql = "SELECT username, password, email FROM chess.user_data WHERE username = ?";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
@@ -34,7 +34,7 @@ public class SQLUserDAO implements UserDAO{
 
     @Override
     public void createUser(UserData user) throws DataAccessException {
-        String sql = "INSERT INTO USER_DATA (username, password, email) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO chess.user_data (username, password, email) VALUES (?, ?, ?)";
 
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -52,13 +52,25 @@ public class SQLUserDAO implements UserDAO{
         }
     }
 
+    public UserData loginUser(String username, String password) throws DataAccessException {
+        UserData user = getUser(username);
+        if (user == null) {
+            throw new DataAccessException("User not found");
+        }
+        if (!org.mindrot.jbcrypt.BCrypt.checkpw(password, user.password())) {
+            throw new DataAccessException("Invalid password");
+        }
+        return user;
+    }
+
+
     private String hashUserPassword(    String clearTextPassword) {
         return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
     }
 
     @Override
     public void clearAll() throws DataAccessException {
-        String sql = "DELETE FROM USER_DATA";
+        String sql = "DELETE FROM chess.user_data";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.executeUpdate();
