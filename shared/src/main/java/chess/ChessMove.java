@@ -40,7 +40,7 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        return getPromotionPiece();
+        return promotionPiece;
     }
 
     @Override
@@ -48,23 +48,25 @@ public class ChessMove {
         return String.format("[%s:%s]",startPosition, endPosition);
     }
 
+    @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
-        if (!super.equals(object)) {
-            return false;
-        }
-
         ChessMove chessMove = (ChessMove) object;
         return java.util.Objects.equals(startPosition, chessMove.startPosition) && java.util.Objects.equals(endPosition, chessMove.endPosition) && promotionPiece == chessMove.promotionPiece;
     }
 
+    @Override
+//    public int hashCode() {
+//        int result = super.hashCode();
+//        result = 31 * result + java.util.Objects.hashCode(startPosition);
+//        result = 31 * result + java.util.Objects.hashCode(endPosition);
+//        result = 31 * result + java.util.Objects.hashCode(promotionPiece);
+//        return java.util.Objects.hash(startPosition, endPosition, promotionPiece);
+//    }
+
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + java.util.Objects.hashCode(startPosition);
-        result = 31 * result + java.util.Objects.hashCode(endPosition);
-        result = 31 * result + java.util.Objects.hashCode(promotionPiece);
-        return result;
+        return java.util.Objects.hash(startPosition, endPosition, promotionPiece);
     }
 }
