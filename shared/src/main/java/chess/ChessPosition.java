@@ -2,13 +2,14 @@ package chess;
 
 /**
  * Represents a single square position on a chess board
- * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
  */
 public class ChessPosition {
 
+    private final int row;
+    private final int col;
     public ChessPosition(int row, int col) {
+        this.row = row;
+        this.col = col;
     }
 
     /**
@@ -16,7 +17,7 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        throw new RuntimeException("Not implemented");
+        return row;
     }
 
     /**
@@ -24,6 +25,30 @@ public class ChessPosition {
      * 1 codes for the left row
      */
     public int getColumn() {
-        throw new RuntimeException("Not implemented");
+        return col;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%d%d", row, col);
+    }
+
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        if (!super.equals(object)) {
+            return false;
+        }
+
+        ChessPosition that = (ChessPosition) object;
+        return row == that.row && col == that.col;
+    }
+
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + row;
+        result = 31 * result + col;
+        return result;
     }
 }
