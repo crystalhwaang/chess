@@ -8,6 +8,7 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
+// need to add to resubmit
 public class ChessMove {
 
     private final ChessPosition startPosition;
