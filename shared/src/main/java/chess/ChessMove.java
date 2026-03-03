@@ -1,14 +1,11 @@
 package chess;
 
-import java.util.Objects;
-
 /**
  * Represents moving a chess piece on a chessboard
  * <p>
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-// need to add to resubmit
 public class ChessMove {
 
     private final ChessPosition startPosition;
@@ -20,7 +17,6 @@ public class ChessMove {
         this.startPosition = startPosition;
         this.endPosition = endPosition;
         this.promotionPiece = promotionPiece;
-
     }
 
     /**
@@ -49,17 +45,18 @@ public class ChessMove {
 
     @Override
     public String toString() {
-        return String.format("[%s:%s]", startPosition, endPosition);
+        return String.format("[%s:%s]",startPosition, endPosition);
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) {
             return false;
         }
-
-        ChessMove chessMove = (ChessMove) o;
-        return java.util.Objects.equals(startPosition, chessMove.startPosition) && java.util.Objects.equals(endPosition, chessMove.endPosition) && promotionPiece == chessMove.promotionPiece;
+        ChessMove chessMove = (ChessMove) object;
+        return java.util.Objects.equals(startPosition, chessMove.startPosition)
+                && java.util.Objects.equals(endPosition, chessMove.endPosition)
+                && promotionPiece == chessMove.promotionPiece;
     }
 
     @Override
