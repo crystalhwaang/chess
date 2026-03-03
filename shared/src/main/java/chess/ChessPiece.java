@@ -1,7 +1,6 @@
 package chess;
 import java.util.*;
 
-
 public class ChessPiece {
 
     protected final ChessGame.TeamColor pieceColor;
@@ -41,13 +40,19 @@ public class ChessPiece {
         return type;
     }
 
-    /**
-     * Calculates all the positions a chess piece can move to
-     * Does not take into account moves that are illegal due to leaving the king in
-     * danger
-     *
-     * @return Collection of valid moves
-     */
+    private Collection<ChessMove> generateOffsetMoves(ChessBoard board, ChessPosition myPosition, int[][] offsets, ChessGame.TeamColor pieceColor) {
+        Collection<ChessMove> moves = new ArrayList<>();
+        for (int[] move : offsets) {
+            ChessPosition newPos = new ChessPosition(myPosition.getRow() + move[0], myPosition.getColumn() + move[1]);
+            if (isValidPosition(newPos)) {
+                ChessPiece piece = board.getPiece(newPos);
+                if (piece == null || piece.getTeamColor() != pieceColor) {
+                    moves.add(new ChessMove(myPosition, newPos, null));
+                }
+            }
+        }
+        return moves;
+    }
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> moves = new ArrayList<>();
@@ -93,8 +98,7 @@ public class ChessPiece {
             dir = 1;
             startRow = 2;
             promoteRow = 8;
-        }
-        else {
+        } else {
             dir = -1;
             startRow = 7;
             promoteRow = 1;
@@ -107,8 +111,7 @@ public class ChessPiece {
                 moves.add(new ChessMove(myPosition, forwardPos, PieceType.ROOK));
                 moves.add(new ChessMove(myPosition, forwardPos, PieceType.BISHOP));
                 moves.add(new ChessMove(myPosition, forwardPos, PieceType.KNIGHT));
-            }
-            else {
+            } else {
                 moves.add(new ChessMove(myPosition, forwardPos, null));
             }
         }
@@ -130,8 +133,7 @@ public class ChessPiece {
                         moves.add(new ChessMove(myPosition, capturePos, PieceType.ROOK));
                         moves.add(new ChessMove(myPosition, capturePos, PieceType.BISHOP));
                         moves.add(new ChessMove(myPosition, capturePos, PieceType.KNIGHT));
-                    }
-                    else {
+                    } else {
                         moves.add(new ChessMove(myPosition, capturePos, null));
                     }
                 }
@@ -161,19 +163,8 @@ public class ChessPiece {
     }
 
     protected Collection<ChessMove> getKnightMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
         int[][] knightMoves = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
-
-        for (int[] move : knightMoves) {
-            ChessPosition newPos = new ChessPosition(myPosition.getRow() + move[0], myPosition.getColumn() + move[1]);
-            if (isValidPosition(newPos)) {
-                ChessPiece piece = board.getPiece(newPos);
-                if (piece == null || piece.getTeamColor() != pieceColor) {
-                    moves.add(new ChessMove(myPosition, newPos, null));
-                }
-            }
-        }
-        return moves;
+        return generateOffsetMoves(board, myPosition, knightMoves, pieceColor);
     }
 
     protected Collection<ChessMove> getQueenMoves(ChessBoard board, ChessPosition myPosition) {
@@ -184,19 +175,8 @@ public class ChessPiece {
     }
 
     protected Collection<ChessMove> getKingMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
         int[][] kingMoves = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-
-        for (int[] move : kingMoves) {
-            ChessPosition newPos = new ChessPosition(myPosition.getRow() + move[0], myPosition.getColumn() + move[1]);
-            if (isValidPosition(newPos)) {
-                ChessPiece piece = board.getPiece(newPos);
-                if (piece == null || piece.getTeamColor() != pieceColor) {
-                    moves.add(new ChessMove(myPosition, newPos, null));
-                }
-            }
-        }
-        return moves;
+        return generateOffsetMoves(board, myPosition, kingMoves, pieceColor);
     }
 
     protected boolean isValidPosition(ChessPosition position) {
