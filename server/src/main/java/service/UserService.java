@@ -1,11 +1,12 @@
 package service;
-
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import exception.AlreadyTakenException;
 import exception.UnauthorizedException;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
@@ -21,7 +22,7 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
-    public RegisterResult register(RegisterRequest request) throws AlreadyTakenException {
+    public RegisterResult register(RegisterRequest request) throws AlreadyTakenException, DataAccessException {
         // check if username exists
         UserData existing = userDAO.getUser(request.username());
         if (existing != null) {
@@ -37,10 +38,10 @@ public class UserService {
         return new RegisterResult(request.username(), authToken);
     }
 
-    public LoginResult login(LoginRequest request) throws UnauthorizedException {
+    public LoginResult login(LoginRequest request) throws UnauthorizedException, DataAccessException {
         UserData user = userDAO.getUser(request.username());
         // check if password or username is valid
-        if (user == null || !user.password().equals(request.password())) {
+        if (user == null || !BCrypt.checkpw(request.password(), user.password())) {
             throw new UnauthorizedException("Invalid username or password");
         }
         // new authToken
@@ -50,7 +51,7 @@ public class UserService {
         return new LoginResult(user.username(), authToken);
     }
 
-    public void logout(String authToken) throws UnauthorizedException {
+    public void logout(String authToken) throws UnauthorizedException, DataAccessException {
         AuthData auth = authDAO.getAuth(authToken);
         // check if authToken is invalid
         if (auth == null) {

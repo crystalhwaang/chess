@@ -1,5 +1,6 @@
 package service;
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import exception.AlreadyTakenException;
 import exception.UnauthorizedException;
@@ -19,7 +20,7 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-    public CreateGameResult createGame(String authToken, CreateGameRequest request) throws UnauthorizedException {
+    public CreateGameResult createGame(String authToken, CreateGameRequest request) throws UnauthorizedException, DataAccessException {
         AuthData auth = authDAO.getAuth(authToken);
         // validate user auth token
         if (auth == null) {
@@ -34,9 +35,8 @@ public class GameService {
         return new CreateGameResult(gameID);
     }
 
-    public void joinGame(String authToken, JoinGameRequest request) throws UnauthorizedException, AlreadyTakenException {
+    public void joinGame(String authToken, JoinGameRequest request) throws UnauthorizedException, AlreadyTakenException, DataAccessException {
         AuthData auth = authDAO.getAuth(authToken);
-        // validate user auth token
         if (auth == null) {
             throw new UnauthorizedException("Invalid auth token");
         }
@@ -44,17 +44,22 @@ public class GameService {
         if (request.playerColor() == null || (!request.playerColor().equalsIgnoreCase("WHITE") && !request.playerColor().equalsIgnoreCase("BLACK"))) {
             throw new IllegalArgumentException("Invalid color");
         }
-        // join the game
-        gameDAO.joinGame(request.gameID(), request.playerColor(), auth.username());
+
+        try {
+            gameDAO.joinGame(request.gameID(), request.playerColor(), auth.username());
+        } catch (DataAccessException e) {
+            if (e.getMessage() != null && e.getMessage().contains("Game not found")) {
+                throw new IllegalArgumentException("Game not found");
+            }
+            throw e;
+        }
     }
 
-    public List<GameData> listGames(String authToken) throws UnauthorizedException {
+    public List<GameData> listGames(String authToken) throws UnauthorizedException, DataAccessException {
         AuthData auth = authDAO.getAuth(authToken);
-        // validate user auth token
         if (auth == null) {
             throw new UnauthorizedException("Invalid auth token");
         }
-        // list games
         return gameDAO.listGames();
     }
 }

@@ -1,5 +1,4 @@
 package server;
-
 import dataaccess.*;
 import exception.AlreadyTakenException;
 import exception.UnauthorizedException;
@@ -30,9 +29,14 @@ public class Server {
     private final GameService gameService;
 
     public Server() {
-        UserDAO userDAO = new MemoryUserDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
-        GameDAO gameDAO = new MemoryGameDAO();
+        try {
+            DatabaseManager.createDatabase();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize database", e);
+        }
+        UserDAO userDAO = new SQLUserDAO();
+        AuthDAO authDAO = new SQLAuthDAO();
+        GameDAO gameDAO = new SQLGameDAO();
         userService = new UserService(userDAO, authDAO);
         databaseService = new DatabaseService(userDAO, authDAO, gameDAO);
         gameService = new GameService(authDAO, gameDAO);
@@ -57,7 +61,7 @@ public class Server {
             databaseService.clearDatabase();
             context.status(200).result(gson.toJson(new java.util.HashMap<>()));
         } catch (Exception e) {
-            context.status(500).result(gson.toJson(new ErrorResponse(null, "Error: " + e.getMessage())));
+            context.status(500).result(gson.toJson(new ErrorResponse(null,"Error: " + e.getMessage())));
         }
     }
 
@@ -91,7 +95,7 @@ public class Server {
         try {
             request = gson.fromJson(context.body(), RegisterRequest.class);
         } catch (Exception e) {
-            context.status(400).result(gson.toJson(new ErrorResponse(null, "Error: bad request")));
+            context.status(400).result(gson.toJson(new ErrorResponse(null,"Error: bad request")));
             return;
         }
         if (request.username() == null || request.username().isBlank() ||
@@ -104,9 +108,9 @@ public class Server {
             RegisterResult result = userService.register(request);
             context.status(200).result(gson.toJson(result));
         } catch (AlreadyTakenException e) {
-            context.status(403).result(gson.toJson(new ErrorResponse(null, "Error: already taken")));
+            context.status(403).result(gson.toJson(new ErrorResponse(null,"Error: already taken")));
         } catch (Exception e) {
-            context.status(500).result(gson.toJson(new ErrorResponse(null, "Error: " + e.getMessage())));
+            context.status(500).result(gson.toJson(new ErrorResponse(null,"Error: " + e.getMessage())));
         }
     }
 
@@ -114,7 +118,7 @@ public class Server {
     private void handleLogout(@NotNull Context context) {
         String authToken = context.header("authorization");
         if (authToken == null || authToken.isBlank()) {
-            context.status(401).result(gson.toJson(new ErrorResponse(null, "Error: unauthorized")));
+            context.status(401).result(gson.toJson(new ErrorResponse(null,"Error: unauthorized")));
             return;
         }
         try {
@@ -131,29 +135,29 @@ public class Server {
     private void handleCreateGame(@NotNull Context context) {
         String authToken = context.header("authorization");
         if (authToken == null || authToken.isBlank()) {
-            context.status(401).result(gson.toJson(new ErrorResponse(null, "Error: unauthorized")));
+            context.status(401).result(gson.toJson(new ErrorResponse(null,"Error: unauthorized")));
             return;
         }
         CreateGameRequest request;
         try {
             request = gson.fromJson(context.body(), CreateGameRequest.class);
         } catch (Exception e) {
-            context.status(400).result(gson.toJson(new ErrorResponse(null, "Error: bad request")));
+            context.status(400).result(gson.toJson(new ErrorResponse(null,"Error: bad request")));
             return;
         }
         if (request.gameName() == null || request.gameName().isBlank()) {
-            context.status(400).result(gson.toJson(new ErrorResponse(null, "Error: bad request")));
+            context.status(400).result(gson.toJson(new ErrorResponse(null,"Error: bad request")));
             return;
         }
         try {
             CreateGameResult result = gameService.createGame(authToken, request);
             context.status(200).result(gson.toJson(result));
         } catch (UnauthorizedException e) {
-            context.status(401).result(gson.toJson(new ErrorResponse(null, "Error: unauthorized")));
+            context.status(401).result(gson.toJson(new ErrorResponse(null,"Error: unauthorized")));
         } catch (IllegalArgumentException e) {
-            context.status(400).result(gson.toJson(new ErrorResponse(null, "Error: " + e.getMessage())));
+            context.status(400).result(gson.toJson(new ErrorResponse(null,"Error: " + e.getMessage())));
         } catch (Exception e) {
-            context.status(500).result(gson.toJson(new ErrorResponse(null, "Error: " + e.getMessage())));
+            context.status(500).result(gson.toJson(new ErrorResponse(null,"Error: " + e.getMessage())));
         }
     }
 
@@ -179,7 +183,8 @@ public class Server {
         } catch (AlreadyTakenException e) {
             context.status(403).result(gson.toJson(new ErrorResponse(null, "Error: already taken")));
         } catch (IllegalArgumentException e) {
-            context.status(400).result(gson.toJson(new ErrorResponse(null, "Error: bad request")));
+            String msg = e.getMessage() != null && !e.getMessage().isBlank() ? e.getMessage() : "bad request";
+            context.status(400).result(gson.toJson(new ErrorResponse(null, "Error: " + msg)));
         } catch (Exception e) {
             context.status(500).result(gson.toJson(new ErrorResponse(null, "Error: " + e.getMessage())));
         }
