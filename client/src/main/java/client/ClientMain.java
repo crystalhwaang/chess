@@ -24,7 +24,11 @@ public class ClientMain {
         try (var scanner = new Scanner(System.in)) {
             var running = true;
             while (running) {
-                System.out.print("\n[PRELOGIN] >> ");
+                if (currentSession != null) {
+                    System.out.print("\n[POSTLOGIN] >> ");
+                } else {
+                    System.out.print("\n[PRELOGIN] >> ");
+                }
                 if (!scanner.hasNextLine()) {
                     break;
                 }
@@ -36,7 +40,11 @@ public class ClientMain {
 
                 var lowerCased = input.toLowerCase(Locale.ROOT);
                 var command = lowerCased.split("\\s+")[0];
-                running = handlePreloginCommand(command, scanner);
+                if (currentSession != null) {
+                    running = handlePostloginCommand(command);
+                } else {
+                    running = handlePreloginCommand(command, scanner);
+                }
             }
         }
     }
@@ -56,11 +64,32 @@ public class ClientMain {
                 yield true;
             }
             case "register" -> {
-                System.out.println("Welcome! Please enter your username, password, and email.");
+                register(scanner);
                 yield true;
             }
             default -> {
                 System.out.println("Unknown command. Type 'help' to see available prelogin commands.");
+                yield true;
+            }
+        };
+    }
+
+    private static boolean handlePostloginCommand(String command) {
+        return switch (command) {
+            case "help" -> {
+                System.out.println(postloginHelp());
+                yield true;
+            }
+            case "quit" -> {
+                System.out.println("Exiting the program.");
+                yield false;
+            }
+            case "logout" -> {
+                logout();
+                yield true;
+            }
+            default -> {
+                System.out.println("Unknown command. Type 'help' to see available postlogin commands.");
                 yield true;
             }
         };
@@ -84,7 +113,7 @@ public class ClientMain {
             return;
         }
 
-        var requestBody = GSON.toJson(new LoginRequest(username, password));
+        var requestBody = GSON.toJson(new JsonLoginRequest(username, password));
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(SERVER_URL + "/session"))
                 .header("Content-Type", "application/json")
@@ -99,6 +128,7 @@ public class ClientMain {
                         && currentSession.authToken() != null
                         && !currentSession.authToken().isBlank()) {
                     System.out.printf("Logged in as %s.%n", currentSession.username());
+                    System.out.println(postloginHelp());
                     return;
                 }
                 currentSession = null;
@@ -114,6 +144,91 @@ public class ClientMain {
             System.out.printf("Login failed. Unable to reach server at %s.%n", SERVER_URL);
         } catch (JsonSyntaxException e) {
             System.out.println("Login failed. Unable to parse server response.");
+        }
+    }
+
+    private static void register(Scanner scanner) {
+        System.out.print("Username: ");
+        if (!scanner.hasNextLine()) {
+            return;
+        }
+        var username = scanner.nextLine().trim();
+
+        System.out.print("Password: ");
+        if (!scanner.hasNextLine()) {
+            return;
+        }
+        var password = scanner.nextLine().trim();
+
+        System.out.print("Email: ");
+        if (!scanner.hasNextLine()) {
+            return;
+        }
+        var email = scanner.nextLine().trim();
+
+        if (username.isBlank() || password.isBlank() || email.isBlank()) {
+            System.out.println("Registration failed. Username, password, and email are required.");
+            return;
+        }
+
+        var requestBody = GSON.toJson(new JsonRegisterRequest(username, password, email));
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(SERVER_URL + "/user"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+
+        try {
+            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                currentSession = GSON.fromJson(response.body(), LoginSuccess.class);
+                if (currentSession != null
+                        && currentSession.authToken() != null
+                        && !currentSession.authToken().isBlank()) {
+                    System.out.printf("Registered and logged in as %s.%n", currentSession.username());
+                    System.out.println(postloginHelp());
+                    return;
+                }
+                currentSession = null;
+                System.out.println("Registration failed. Server returned an invalid response.");
+                return;
+            }
+
+            System.out.printf("Registration failed. %s%n", parseErrorMessage(response.body(), response.statusCode()));
+        } catch (IOException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            System.out.printf("Registration failed. Unable to reach server at %s.%n", SERVER_URL);
+        } catch (JsonSyntaxException e) {
+            System.out.println("Registration failed. Unable to parse server response.");
+        }
+    }
+
+    private static void logout() {
+        if (currentSession == null) {
+            return;
+        }
+        var token = currentSession.authToken();
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(SERVER_URL + "/session"))
+                .header("authorization", token)
+                .DELETE()
+                .build();
+        try {
+            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                System.out.printf("Logged out %s.%n", currentSession.username());
+                currentSession = null;
+                System.out.println(preloginHelp());
+                return;
+            }
+            System.out.printf("Logout failed. %s%n", parseErrorMessage(response.body(), response.statusCode()));
+        } catch (IOException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            System.out.printf("Logout failed. Unable to reach server at %s.%n", SERVER_URL);
         }
     }
 
@@ -133,13 +248,24 @@ public class ClientMain {
         return """
                 Possible Actions:
                 - help: Displays this help text and available actions.
-                - register <username> <password> <email>: Creates a new account.
+                - register: Prompts for username, password, and email, then creates an account and logs you in.
                 - login: Prompts for username and password, then logs into the server.
                 - quit: Exits the program.
                 """;
     }
 
-    private record LoginRequest(String username, String password) {}
+    private static String postloginHelp() {
+        return """
+                Possible Actions:
+                - help: Displays this help text and available actions.
+                - logout: Ends your session and returns to the pre-login menu.
+                - quit: Exits the program.
+                """;
+    }
+
+    private record JsonLoginRequest(String username, String password) {}
+
+    private record JsonRegisterRequest(String username, String password, String email) {}
 
     private record LoginSuccess(String username, String authToken) {}
 }
