@@ -1,21 +1,12 @@
 package client;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.Locale;
 import java.util.Scanner;
 
 public class ClientMain {
     private static final String SERVER_URL = "http://localhost:8080";
-    private static final Gson GSON = new Gson();
-    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
-    private static LoginSuccess currentSession;
+    private static final ServerFacade SERVER = new ServerFacade(SERVER_URL);
+    private static ServerFacade.AuthResult currentSession;
 
     public static void main(String[] args) {
         System.out.println("240 Chess Client");
@@ -113,37 +104,18 @@ public class ClientMain {
             return;
         }
 
-        var requestBody = GSON.toJson(new JsonLoginRequest(username, password));
-        var request = HttpRequest.newBuilder()
-                .uri(URI.create(SERVER_URL + "/session"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .build();
-
-        try {
-            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                currentSession = GSON.fromJson(response.body(), LoginSuccess.class);
-                if (currentSession != null
-                        && currentSession.authToken() != null
-                        && !currentSession.authToken().isBlank()) {
-                    System.out.printf("Logged in as %s.%n", currentSession.username());
+        switch (SERVER.login(username, password)) {
+            case ServerFacade.Result.Ok(ServerFacade.AuthResult auth) -> {
+                if (auth.authToken() != null && !auth.authToken().isBlank()) {
+                    currentSession = auth;
+                    System.out.printf("Logged in as %s.%n", auth.username());
                     System.out.println(postloginHelp());
-                    return;
+                } else {
+                    System.out.println("Login failed. Server returned an invalid response.");
                 }
-                currentSession = null;
-                System.out.println("Login failed. Server returned an invalid response.");
-                return;
             }
-
-            System.out.printf("Login failed. %s%n", parseErrorMessage(response.body(), response.statusCode()));
-        } catch (IOException | InterruptedException e) {
-            if (e instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
-            System.out.printf("Login failed. Unable to reach server at %s.%n", SERVER_URL);
-        } catch (JsonSyntaxException e) {
-            System.out.println("Login failed. Unable to parse server response.");
+            case ServerFacade.Result.Err(var code, var message) ->
+                    System.out.printf("Login failed. %s%n", message);
         }
     }
 
@@ -171,37 +143,18 @@ public class ClientMain {
             return;
         }
 
-        var requestBody = GSON.toJson(new JsonRegisterRequest(username, password, email));
-        var request = HttpRequest.newBuilder()
-                .uri(URI.create(SERVER_URL + "/user"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .build();
-
-        try {
-            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                currentSession = GSON.fromJson(response.body(), LoginSuccess.class);
-                if (currentSession != null
-                        && currentSession.authToken() != null
-                        && !currentSession.authToken().isBlank()) {
-                    System.out.printf("Registered and logged in as %s.%n", currentSession.username());
+        switch (SERVER.register(username, password, email)) {
+            case ServerFacade.Result.Ok(ServerFacade.AuthResult auth) -> {
+                if (auth.authToken() != null && !auth.authToken().isBlank()) {
+                    currentSession = auth;
+                    System.out.printf("Registered and logged in as %s.%n", auth.username());
                     System.out.println(postloginHelp());
-                    return;
+                } else {
+                    System.out.println("Registration failed. Server returned an invalid response.");
                 }
-                currentSession = null;
-                System.out.println("Registration failed. Server returned an invalid response.");
-                return;
             }
-
-            System.out.printf("Registration failed. %s%n", parseErrorMessage(response.body(), response.statusCode()));
-        } catch (IOException | InterruptedException e) {
-            if (e instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
-            System.out.printf("Registration failed. Unable to reach server at %s.%n", SERVER_URL);
-        } catch (JsonSyntaxException e) {
-            System.out.println("Registration failed. Unable to parse server response.");
+            case ServerFacade.Result.Err(var code, var message) ->
+                    System.out.printf("Registration failed. %s%n", message);
         }
     }
 
@@ -210,38 +163,16 @@ public class ClientMain {
             return;
         }
         var token = currentSession.authToken();
-        var request = HttpRequest.newBuilder()
-                .uri(URI.create(SERVER_URL + "/session"))
-                .header("authorization", token)
-                .DELETE()
-                .build();
-        try {
-            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                System.out.printf("Logged out %s.%n", currentSession.username());
+        var username = currentSession.username();
+        switch (SERVER.logout(token)) {
+            case ServerFacade.Result.Ok(var ignored) -> {
+                System.out.printf("Logged out %s.%n", username);
                 currentSession = null;
                 System.out.println(preloginHelp());
-                return;
             }
-            System.out.printf("Logout failed. %s%n", parseErrorMessage(response.body(), response.statusCode()));
-        } catch (IOException | InterruptedException e) {
-            if (e instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
-            System.out.printf("Logout failed. Unable to reach server at %s.%n", SERVER_URL);
+            case ServerFacade.Result.Err(var code, var message) ->
+                    System.out.printf("Logout failed. %s%n", message);
         }
-    }
-
-    private static String parseErrorMessage(String body, int statusCode) {
-        try {
-            var json = GSON.fromJson(body, JsonObject.class);
-            if (json != null && json.has("message") && !json.get("message").isJsonNull()) {
-                return json.get("message").getAsString();
-            }
-        } catch (Exception ignored) {
-            // fall through
-        }
-        return "HTTP " + statusCode;
     }
 
     private static String preloginHelp() {
@@ -262,10 +193,4 @@ public class ClientMain {
                 - quit: Exits the program.
                 """;
     }
-
-    private record JsonLoginRequest(String username, String password) {}
-
-    private record JsonRegisterRequest(String username, String password, String email) {}
-
-    private record LoginSuccess(String username, String authToken) {}
 }
